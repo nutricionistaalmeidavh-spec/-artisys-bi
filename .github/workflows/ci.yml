@@ -1,18 +1,58 @@
-name: Verificar ArtiSys BI
+name: Testes e prévia ArtiSys BI
 
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: artisys-bi-pages-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   validate:
+    name: Testes e build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Obter código
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Node.js 22
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --no-fund --no-audit
-      - run: npm test
-      - run: npm run build
+      - name: Instalar dependências gratuitas
+        run: npm install --no-audit --no-fund
+      - name: Testes automatizados
+        run: npm test
+      - name: Validar TypeScript e compilar Vite
+        run: npm run build
+      - name: Enviar artefato da prévia
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./dist
+
+  deploy:
+    name: Publicar no GitHub Pages
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Publicar prévia estática
+        id: deployment
+        uses: actions/deploy-pages@v4

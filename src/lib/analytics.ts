@@ -146,8 +146,9 @@ export function normalizeImportedRows(rows: Record<string, unknown>[], projects:
     const row = normalized(source);
     const projectName = String(row.obra ?? row.projeto ?? row.project ?? '').trim().toLowerCase();
     const project = projects.find(item => item.id.toLowerCase() === projectName || item.name.toLowerCase() === projectName || item.code.toLowerCase() === projectName);
-    const categoryText = String(row.categoria ?? row.category ?? '').trim().toLowerCase();
-    const category = expenseCategories.find(name => name.toLowerCase() === categoryText);
+    const categoryText = String(row.categoria ?? row.category ?? '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const aliases: Record<string, ExpenseCategory> = { combustivel: 'Máquinas', diesel: 'Máquinas', equipamento: 'Máquinas', equipamentos: 'Máquinas', manutencao: 'Máquinas', mao_de_obra: 'Equipe', pessoal: 'Equipe', insumos: 'Materiais', servicos: 'Terceiros' };
+    const category = expenseCategories.find(name => name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') === categoryText) ?? aliases[categoryText];
     const date = isoDate(row.data ?? row.date);
     const amount = safeNumber(row.valor ?? row.amount);
     if (!project || !category || !date || !Number.isFinite(amount) || amount <= 0) {
