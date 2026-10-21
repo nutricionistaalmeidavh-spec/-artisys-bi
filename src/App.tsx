@@ -25,9 +25,9 @@ const number = (value: number) => new Intl.NumberFormat('pt-BR').format(value);
 const dateBR = (date: string) => new Date(date + 'T12:00:00').toLocaleDateString('pt-BR');
 const monthBR = (month: string) => new Date(month + '-10T12:00:00').toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
 const nameOf = (projectId: string) => demoProjects.find(p => p.id === projectId)?.name || projectId;
-const tooltipStyle = { background: '#17112f', border: '1px solid #493762', borderRadius: 12, color: '#eaf3f7', boxShadow: '0 16px 36px #0005' };
-const axisTick = { fill: '#7e93a8', fontSize: 11 };
-const gridStroke = '#302644';
+const tooltipStyle = { background: '#ffffff', border: '1px solid #e2cfc5', borderRadius: 12, color: '#4a2820', boxShadow: '0 16px 36px #0005' };
+const axisTick = { fill: '#8e776e', fontSize: 11 };
+const gridStroke = '#efdfd7';
 
 const navigation: { id: Section; label: string; subtitle?: string; icon: typeof LayoutDashboard }[] = [
   { id: 'overview', label: 'Visão geral', icon: LayoutDashboard },
@@ -75,14 +75,13 @@ function Status({ label }: { label: string }) {
   return <span className={'status status-' + cls}><span className="status-dot" />{label}</span>;
 }
 
-function Progress({ value, color = '#af58ff' }: { value: number; color?: string }) {
+function Progress({ value, color = '#721f19' }: { value: number; color?: string }) {
   return <div className="progress-track" aria-label={value + '% concluído'}><div className="progress-fill" style={{ width: Math.min(100, Math.max(0, value)) + '%', backgroundColor: color }} /></div>;
 }
 
 function Brand() {
   return <div className="brand">
     <img className="brand-icon" src="./artisys-icon.svg" alt="ArtiSys" width={38} height={38} />
-    <span className="brand-module">Painel gerencial</span>
   </div>;
 }
 
@@ -135,12 +134,12 @@ function Overview({ entries, projects, machines, measurements, setSection, setPr
       <Panel title="Evolução dos custos" subtitle="Despesas registradas mês a mês" className="trend-panel" right={<span className="mini-label">R$ · mensal</span>}>
         {monthly.length ? <div className="chart-wrap"><ResponsiveContainer width="100%" height={262}>
           <AreaChart data={monthly} margin={{ top: 15, right: 8, left: 3, bottom: 0 }}>
-            <defs><linearGradient id="expenseFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#af58ff" stopOpacity={0.29}/><stop offset="100%" stopColor="#af58ff" stopOpacity={0}/></linearGradient></defs>
+            <defs><linearGradient id="expenseFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#721f19" stopOpacity={0.29}/><stop offset="100%" stopColor="#721f19" stopOpacity={0}/></linearGradient></defs>
             <CartesianGrid vertical={false} stroke={gridStroke} strokeDasharray="4 6" />
             <XAxis dataKey="month" tickFormatter={monthBR} tick={axisTick} tickLine={false} axisLine={false} dy={12} />
             <YAxis tickFormatter={v => compactMoney(Number(v))} tick={axisTick} tickLine={false} axisLine={false} width={65} />
             <Tooltip contentStyle={tooltipStyle} formatter={v => money(Number(v))} labelFormatter={v => 'Competência ' + String(v)} />
-            <Area type="monotone" dataKey="amount" name="Custos" stroke="#af58ff" strokeWidth={3} fill="url(#expenseFill)" isAnimationActive={false} dot={{ r: 3, fill: '#af58ff', strokeWidth: 0 }} activeDot={{ r: 6 }} />
+            <Area type="monotone" dataKey="amount" name="Custos" stroke="#721f19" strokeWidth={3} fill="url(#expenseFill)" isAnimationActive={false} dot={{ r: 3, fill: '#721f19', strokeWidth: 0 }} activeDot={{ r: 6 }} />
           </AreaChart>
         </ResponsiveContainer></div> : <ChartEmpty />}
         <div className="panel-footline"><span><i className="legend-dot violet" /> Custos efetivos da demonstração</span><span>Fonte: lançamentos da amostra</span></div>
@@ -215,13 +214,13 @@ function Machines({ machines }: { machines: typeof demoMachines }) {
     </div>
     <div className="analytics-grid">
       <Panel title="Custo por hora / equipamento" subtitle="Custo operacional total dividido pelas horas" className="trend-panel" right={<span className="mini-label">R$ / hora</span>}>
-        {chartData.length ? <ResponsiveContainer width="100%" height={280}><BarChart data={chartData} layout="vertical" margin={{ top: 10, left: 0, right: 28, bottom: 0 }}><CartesianGrid stroke={gridStroke} horizontal={false} strokeDasharray="4 5"/><XAxis type="number" tick={axisTick} axisLine={false} tickLine={false} tickFormatter={v=>'R$ '+v}/><YAxis type="category" dataKey="name" tick={axisTick} axisLine={false} tickLine={false} width={88}/><Tooltip cursor={{ fill:'#241b3e' }} contentStyle={tooltipStyle} formatter={v=>preciseMoney(Number(v))}/><Bar name="Custo/hora" dataKey="value" fill="#af58ff" radius={[0,6,6,0]} barSize={17} isAnimationActive={false}/></BarChart></ResponsiveContainer> : <ChartEmpty/>}
+        {chartData.length ? <ResponsiveContainer width="100%" height={280}><BarChart data={chartData} layout="vertical" margin={{ top: 10, left: 0, right: 28, bottom: 0 }}><CartesianGrid stroke={gridStroke} horizontal={false} strokeDasharray="4 5"/><XAxis type="number" tick={axisTick} axisLine={false} tickLine={false} tickFormatter={v=>'R$ '+v}/><YAxis type="category" dataKey="name" tick={axisTick} axisLine={false} tickLine={false} width={88}/><Tooltip cursor={{ fill:'#f6ede7' }} contentStyle={tooltipStyle} formatter={v=>preciseMoney(Number(v))}/><Bar name="Custo/hora" dataKey="value" fill="#721f19" radius={[0,6,6,0]} barSize={17} isAnimationActive={false}/></BarChart></ResponsiveContainer> : <ChartEmpty/>}
       </Panel>
       <Panel title="Composição dos custos" subtitle="Valores ilustrativos da frota selecionada">
         <div className="cost-breakdown">{[
-          {name:'Combustível',value:machines.reduce((s,m)=>s+m.fuelCost,0),color:'#af58ff'},
-          {name:'Manutenção',value:machines.reduce((s,m)=>s+m.maintenanceCost,0),color:'#efbd81'},
-          {name:'Mão de obra',value:machines.reduce((s,m)=>s+m.laborCost,0),color:'#678bff'}
+          {name:'Combustível',value:machines.reduce((s,m)=>s+m.fuelCost,0),color:'#721f19'},
+          {name:'Manutenção',value:machines.reduce((s,m)=>s+m.maintenanceCost,0),color:'#ca8170'},
+          {name:'Mão de obra',value:machines.reduce((s,m)=>s+m.laborCost,0),color:'#a64b3e'}
         ].map(item=><div key={item.name} className="cost-line"><div><span><i style={{background:item.color}}/>{item.name}</span><strong>{money(item.value)}</strong></div><Progress value={costs ? item.value / costs * 100 : 0} color={item.color}/></div>)}</div>
         <div className="cost-hint"><Activity size={17}/> Custo médio da frota: <strong>{totalHours ? preciseMoney(costs/totalHours) : '—'} / h</strong></div>
       </Panel>
