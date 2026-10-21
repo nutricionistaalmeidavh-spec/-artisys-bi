@@ -75,7 +75,7 @@ function Panel({ title, subtitle, right, children, className = '' }: { title: st
 
 function Status({ label }: { label: string }) {
   const cls = label === 'Atenção' || label === 'Pendente' || label === 'Manutenção' ? 'warning' :
-    label === 'Em análise' || label === 'Ociosa' ? 'neutral' : 'success';
+    label === 'Em análise' || label === 'Ociosa' || label === 'Não informado' ? 'neutral' : 'success';
   return <span className={'status status-' + cls}><span className="status-dot" />{label}</span>;
 }
 
@@ -214,7 +214,7 @@ function Machines({ machines, projects, connected }: { machines: typeof demoMach
       <StatCard label="Máquinas cadastradas" value={String(machines.length).padStart(2,'0')} foot={connected ? 'Equipamentos agrupados dos RDOs' : 'Ativos associados às obras'} icon={<Truck size={19}/>}/>
       <StatCard label="Horas trabalhadas" value={number(totalHours) + 'h'} foot="Horímetros simulados" icon={<Clock3 size={19}/>} tone="blue"/>
       <StatCard label="Custo operacional" value={compactMoney(costs)} foot={connected ? 'Custo apontado nos RDOs' : 'Combustível, manutenção e equipe'} icon={<Wallet size={19}/>} tone="purple"/>
-      <StatCard label="Em manutenção" value={String(machines.filter(m=>m.status==='Manutenção').length).padStart(2,'0')} foot="Ativos temporariamente indisponíveis" icon={<Wrench size={19}/>} tone="amber"/>
+      <StatCard label={connected ? 'Situação de manutenção' : 'Em manutenção'} value={connected ? 'N/D' : String(machines.filter(m=>m.status==='Manutenção').length).padStart(2,'0')} foot={connected ? 'Não disponível nos apontamentos RDO' : 'Ativos temporariamente indisponíveis'} icon={<Wrench size={19}/>} tone="amber"/>
     </div>
     <div className="analytics-grid">
       <Panel title="Custo por hora / equipamento" subtitle="Custo operacional total dividido pelas horas" className="trend-panel" right={<span className="mini-label">R$ / hora</span>}>
