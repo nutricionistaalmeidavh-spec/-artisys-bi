@@ -8,24 +8,24 @@ Painel gerencial independente, construído em React + TypeScript, com dados **10
 
 Pré-requisitos: Node.js 22+ e npm.
 
-\`\`\`bash
+```bash
 git clone https://github.com/nutricionistaalmeidavh-spec/-artisys-bi.git
 cd -- -artisys-bi
 npm install
 npm run dev
-\`\`\`
+```
 
 Abra o endereço local informado pelo Vite (geralmente http://localhost:5173).
 
 Para validar o código:
 
-\`\`\`bash
+```bash
 npm test
 npm run build
 npm run preview
-\`\`\`
+```
 
-A versão construída fica em \`dist/\` e pode ser servida por qualquer servidor HTTP estático, inclusive em infraestrutura própria.
+A versão construída fica em `dist/` e pode ser servida por qualquer servidor HTTP estático, inclusive em infraestrutura própria.
 
 ## Telas existentes
 
@@ -45,10 +45,10 @@ O modelo tem as colunas:
 |---|---|---|---|---|
 | Terraplenagem Industrial | 2026-10-20 | Máquinas | Diesel | 1500,50 |
 
-- \`obra\` deve ser um nome, código ou ID de obra existente na amostra.
-- \`data\` aceita AAAA-MM-DD ou DD/MM/AAAA.
-- \`categoria\` aceita Máquinas, Equipe, Materiais ou Terceiros.
-- \`valor\` deve ser positivo e pode usar separador decimal brasileiro.
+- `obra` deve ser um nome, código ou ID de obra existente na amostra.
+- `data` aceita AAAA-MM-DD ou DD/MM/AAAA.
+- `categoria` aceita Máquinas, Equipe, Materiais ou Terceiros.
+- `valor` deve ser positivo e pode usar separador decimal brasileiro.
 - CSV pode usar ponto e vírgula; campos entre aspas são respeitados.
 - XLSX usa ExcelJS (código open source, processado no navegador).
 
@@ -74,7 +74,7 @@ Os componentes e agregações usados nesta demonstração foram implementados de
 
 ## Critérios de aceitação
 
-\`npm test\` cobre coerência financeira, filtros de obra/período, categorias, custo/hora, parse CSV, validação de arquivos e proteção básica contra fórmulas maliciosas na exportação CSV. \`npm run build\` exige checagem TypeScript e build Vite.
+`npm test` cobre coerência financeira, filtros de obra/período, categorias, custo/hora, parse CSV, validação de arquivos e proteção básica contra fórmulas maliciosas na exportação CSV. `npm run build` exige checagem TypeScript e build Vite.
 
 ## Observação comercial
 
