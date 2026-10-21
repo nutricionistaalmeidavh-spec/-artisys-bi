@@ -17,11 +17,11 @@ export function createCanonicalGateway({upstream=process.env.OBRA_LAN_API_URL,to
   const endpoint=upstream?.replace(/\/$/,'') || '';
   if(endpoint && !/^https?:\/\//.test(endpoint))throw new Error('OBRA_LAN_API_URL deve ser uma URL HTTP(S) válida.');
   const connected=!!endpoint && !!token;
-  const remote=async(table,method='GET',id=null,payload=null)=>{
+  const remote=async(table,method='GET',id=null,payload=null,query='')=>{
     const ctrl=new AbortController();
     const timeout=setTimeout(()=>ctrl.abort(),12000);
     try {
-      const url=`${endpoint}/api/v1/${table}${id!==null?'/'+id:''}`;
+      const url=`${endpoint}/api/v1/${table}${id!==null?'/'+id:''}${query}`;
       const response=await fetchImpl(url,{method,signal:ctrl.signal,
         headers:{authorization:`Bearer ${token}`,accept:'application/json',
           ...(payload!==null?{'content-type':'application/json'}:{})},
@@ -61,7 +61,7 @@ export function createCanonicalGateway({upstream=process.env.OBRA_LAN_API_URL,to
           return json(res,400,{error:'revision_required'});
       }
       try{
-        const reply=await remote(table,req.method,id||null,payload);
+        const reply=await remote(table,req.method,id||null,payload,req.method==='DELETE'?url.search:'');
         return json(res,reply.status,reply.data);
       }catch(error){return json(res,502,{error:'canonical_connection_failed',message:String(error.message||error)})}
     }
