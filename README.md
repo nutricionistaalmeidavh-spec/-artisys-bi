@@ -81,3 +81,17 @@ Os componentes e agregações usados nesta demonstração foram implementados de
 O ambiente é um exemplo ilustrativo para reunião de descoberta. Qualquer dashboard com informações da Opuz exige alinhamento de escopo, integração autorizada e revisão de segurança/privacidade antes do uso em produção.
 
 © 2026 ArtiSys. Código desta demonstração disponibilizado sob licença MIT.
+
+## Prévia pública pelo GitHub Pages (sem Vercel)
+
+O projeto já possui o workflow `.github/workflows/ci.yml`, que executa testes e build e, na branch `main`, envia a pasta `dist/` para o GitHub Pages somente após validação.
+
+**Configuração única, feita pelo administrador do repositório:** abra [Settings → Pages](https://github.com/nutricionistaalmeidavh-spec/-artisys-bi/settings/pages), em **Build and deployment → Source**, selecione **GitHub Actions**. Essa opção precisa ser habilitada na interface do GitHub: o token padrão dos workflows não pode habilitar Pages num repositório em que o serviço ainda esteja desativado.
+
+Em seguida, acesse [Actions](https://github.com/nutricionistaalmeidavh-spec/-artisys-bi/actions/workflows/ci.yml), escolha **Run workflow** com a branch `main` e aguarde os jobs `Testes e build` e `Publicar no GitHub Pages` ficarem verdes.
+
+Endereço esperado **somente após o deployment confirmado**:
+
+`https://nutricionistaalmeidavh-spec.github.io/-artisys-bi/`
+
+Não há necessidade de token, domínio personalizado, Vercel ou qualquer plano pago.
