@@ -123,7 +123,7 @@ export function toDashboardData(snapshot: CanonicalSnapshot): DashboardProjectio
     if(previous){previous.hours+=hours;previous.laborCost+=cost/100;}
     else machineGroups.set(key,{
       id:`rdo-${key}`,name:machineName,model:machineName,projectId,
-      hours,fuelCost:0,maintenanceCost:0,laborCost:cost/100,status:'Operando'
+      hours,fuelCost:0,maintenanceCost:0,laborCost:cost/100,status:'Não informado'
     });
   }
   return {projects,expenses,machines:[...machineGroups.values()],measurements,machineCostTotalMinor};
