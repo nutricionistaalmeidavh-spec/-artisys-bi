@@ -341,7 +341,7 @@ function Imports({ imported, onApply, onReset }: { imported: Expense[]; onApply:
         {preview && <div className="import-preview">
           <div className="preview-header"><div><strong><FileSpreadsheet size={17}/>{preview.file}</strong><small>{preview.valid.length} registros válidos · {preview.errors.length} linha(s) com erro</small></div><button className="icon-button" onClick={()=>setPreview(null)} aria-label="Descartar prévia"><X size={18}/></button></div>
           {preview.errors.length>0 && <div className="import-error"><CircleAlert size={17}/><span>{preview.errors.slice(0,3).join(' ')} {preview.errors.length>3?'Outros erros foram omitidos.':''}</span></div>}
-          {preview.valid.length>0 && <><div className="preview-rows">{preview.valid.slice(0,4).map(e=><div key={e.id}><span>{nameOf(e.projectId,projects)}<small>{e.description}</small></span><strong>{preciseMoney(e.amount)}</strong></div>)}</div><button className="btn btn-primary full-width" onClick={()=>{onApply(preview.valid);setPreview(null);}}>Aplicar {preview.valid.length} lançamento(s) ao painel <ArrowRight size={16}/></button></>}
+          {preview.valid.length>0 && <><div className="preview-rows">{preview.valid.slice(0,4).map(e=><div key={e.id}><span>{nameOf(e.projectId)}<small>{e.description}</small></span><strong>{preciseMoney(e.amount)}</strong></div>)}</div><button className="btn btn-primary full-width" onClick={()=>{onApply(preview.valid);setPreview(null);}}>Aplicar {preview.valid.length} lançamento(s) ao painel <ArrowRight size={16}/></button></>}
         </div>}
       </Panel>
       <div className="import-side">
