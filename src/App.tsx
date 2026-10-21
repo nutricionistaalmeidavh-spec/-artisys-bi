@@ -134,20 +134,20 @@ function Overview({ entries, projects, machines, measurements, setSection, setPr
     <div className="analytics-grid">
       <Panel title="Evolução dos custos" subtitle="Despesas registradas mês a mês" className="trend-panel" right={<span className="mini-label">R$ · mensal</span>}>
         {monthly.length ? <div className="chart-wrap"><ResponsiveContainer width="100%" height={262}>
-          <AreaChart data={monthly} margin={{ top: 15, right: 10, left: -20, bottom: 0 }}>
+          <AreaChart data={monthly} margin={{ top: 15, right: 8, left: 3, bottom: 0 }}>
             <defs><linearGradient id="expenseFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6adfc4" stopOpacity={0.29}/><stop offset="100%" stopColor="#6adfc4" stopOpacity={0}/></linearGradient></defs>
             <CartesianGrid vertical={false} stroke={gridStroke} strokeDasharray="4 6" />
             <XAxis dataKey="month" tickFormatter={monthBR} tick={axisTick} tickLine={false} axisLine={false} dy={12} />
-            <YAxis tickFormatter={v => compactMoney(Number(v))} tick={axisTick} tickLine={false} axisLine={false} />
+            <YAxis tickFormatter={v => compactMoney(Number(v))} tick={axisTick} tickLine={false} axisLine={false} width={65} />
             <Tooltip contentStyle={tooltipStyle} formatter={v => money(Number(v))} labelFormatter={v => 'Competência ' + String(v)} />
-            <Area type="monotone" dataKey="amount" name="Custos" stroke="#6adfc4" strokeWidth={3} fill="url(#expenseFill)" dot={{ r: 3, fill: '#6adfc4', strokeWidth: 0 }} activeDot={{ r: 6 }} />
+            <Area type="monotone" dataKey="amount" name="Custos" stroke="#6adfc4" strokeWidth={3} fill="url(#expenseFill)" isAnimationActive={false} dot={{ r: 3, fill: '#6adfc4', strokeWidth: 0 }} activeDot={{ r: 6 }} />
           </AreaChart>
         </ResponsiveContainer></div> : <ChartEmpty />}
         <div className="panel-footline"><span><i className="legend-dot mint" /> Custos efetivos da demonstração</span><span>Fonte: lançamentos da amostra</span></div>
       </Panel>
       <Panel title="Distribuição de custos" subtitle="Participação por categoria" right={<span className="mini-label">4 categorias</span>}>
         {entries.length ? <><div className="donut-chart"><ResponsiveContainer width="100%" height={194}>
-          <PieChart><Pie data={category} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={63} outerRadius={85} paddingAngle={3} stroke="none">
+          <PieChart><Pie data={category} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={63} outerRadius={85} paddingAngle={3} stroke="none" isAnimationActive={false}>
             {category.map(item => <Cell key={item.name} fill={item.color} />)}
           </Pie><Tooltip contentStyle={tooltipStyle} formatter={v => money(Number(v))} /></PieChart>
         </ResponsiveContainer><div className="donut-center"><small>Distribuído</small><strong>100%</strong></div></div>
@@ -215,7 +215,7 @@ function Machines({ machines }: { machines: typeof demoMachines }) {
     </div>
     <div className="analytics-grid">
       <Panel title="Custo por hora / equipamento" subtitle="Custo operacional total dividido pelas horas" className="trend-panel" right={<span className="mini-label">R$ / hora</span>}>
-        {chartData.length ? <ResponsiveContainer width="100%" height={280}><BarChart data={chartData} layout="vertical" margin={{ top: 10, left: 0, right: 28, bottom: 0 }}><CartesianGrid stroke={gridStroke} horizontal={false} strokeDasharray="4 5"/><XAxis type="number" tick={axisTick} axisLine={false} tickLine={false} tickFormatter={v=>'R$ '+v}/><YAxis type="category" dataKey="name" tick={axisTick} axisLine={false} tickLine={false} width={88}/><Tooltip cursor={{ fill:'#1d2b3d' }} contentStyle={tooltipStyle} formatter={v=>preciseMoney(Number(v))}/><Bar name="Custo/hora" dataKey="value" fill="#6adfc4" radius={[0,6,6,0]} barSize={17}/></BarChart></ResponsiveContainer> : <ChartEmpty/>}
+        {chartData.length ? <ResponsiveContainer width="100%" height={280}><BarChart data={chartData} layout="vertical" margin={{ top: 10, left: 0, right: 28, bottom: 0 }}><CartesianGrid stroke={gridStroke} horizontal={false} strokeDasharray="4 5"/><XAxis type="number" tick={axisTick} axisLine={false} tickLine={false} tickFormatter={v=>'R$ '+v}/><YAxis type="category" dataKey="name" tick={axisTick} axisLine={false} tickLine={false} width={88}/><Tooltip cursor={{ fill:'#1d2b3d' }} contentStyle={tooltipStyle} formatter={v=>preciseMoney(Number(v))}/><Bar name="Custo/hora" dataKey="value" fill="#6adfc4" radius={[0,6,6,0]} barSize={17} isAnimationActive={false}/></BarChart></ResponsiveContainer> : <ChartEmpty/>}
       </Panel>
       <Panel title="Composição dos custos" subtitle="Valores ilustrativos da frota selecionada">
         <div className="cost-breakdown">{[
@@ -254,7 +254,7 @@ function Finance({ entries, measurements }: { entries: Expense[]; measurements: 
     </div>
     <div className="analytics-grid">
       <Panel title="Evolução por natureza de custo" subtitle="Distribuição mensal dos lançamentos" className="trend-panel">
-        {months.length ? <ResponsiveContainer width="100%" height={268}><AreaChart data={months} margin={{top:12,right:6,left:-20,bottom:0}}><CartesianGrid vertical={false} stroke={gridStroke} strokeDasharray="4 6"/><XAxis dataKey="month" tickFormatter={monthBR} tick={axisTick} axisLine={false} tickLine={false} dy={10}/><YAxis tick={axisTick} axisLine={false} tickLine={false} tickFormatter={v=>compactMoney(Number(v))}/><Tooltip contentStyle={tooltipStyle} formatter={v=>money(Number(v))}/>{expenseCategories.map(category=><Area key={category} name={category} type="monotone" dataKey={category} stackId="1" fill={categoryColors[category]} fillOpacity={0.58} stroke={categoryColors[category]} strokeWidth={1.5}/>)}</AreaChart></ResponsiveContainer> : <ChartEmpty/>}
+        {months.length ? <ResponsiveContainer width="100%" height={268}><AreaChart data={months} margin={{top:12,right:6,left:3,bottom:0}}><CartesianGrid vertical={false} stroke={gridStroke} strokeDasharray="4 6"/><XAxis dataKey="month" tickFormatter={monthBR} tick={axisTick} axisLine={false} tickLine={false} dy={10}/><YAxis tick={axisTick} axisLine={false} tickLine={false} tickFormatter={v=>compactMoney(Number(v))} width={65}/><Tooltip contentStyle={tooltipStyle} formatter={v=>money(Number(v))}/>{expenseCategories.map(category=><Area key={category} name={category} type="monotone" dataKey={category} stackId="1" fill={categoryColors[category]} fillOpacity={0.58} stroke={categoryColors[category]} strokeWidth={1.5} isAnimationActive={false}/>)}</AreaChart></ResponsiveContainer> : <ChartEmpty/>}
       </Panel>
       <Panel title="Despesas por categoria" subtitle="Total no recorte selecionado">
         <div className="category-ledger">{categories.map(c=><div className="category-row" key={c.name}><div className="category-row-icon" style={{color:c.color,background:c.color+'18'}}><ArrowUpRight size={17}/></div><div><strong>{c.name}</strong><small>{total ? Math.round(c.value/total*100) : 0}% do total</small></div><strong>{money(c.value)}</strong></div>)}</div>
