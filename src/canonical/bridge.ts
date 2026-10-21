@@ -35,7 +35,9 @@ const text = (value: unknown) => String(value ?? '').trim();
 const num = (value: unknown) => Number(value ?? 0);
 const asDate = (value: unknown) => {
   const str = text(value);
-  return /^\d{4}-\d{2}-\d{2}/.test(str) ? str.slice(0,10) : '2026-10-01';
+  if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.slice(0,10);
+  if (/^\d{4}-\d{2}$/.test(str)) return str+'-01';
+  throw new Error('Data/competência ausente ou inválida em registro canônico.');
 };
 const categoryOf = (label: string): ExpenseCategory => {
   const cat = label.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
@@ -89,7 +91,7 @@ export function toDashboardData(snapshot: CanonicalSnapshot): DashboardProjectio
       location:text(o.endereco)||'Local não informado', client:text(o.cliente_nome)||'',
       budget:budget/100, progress:Math.min(100,Math.max(0,num(o.percentual_fisico))),
       planned:planned?.length?Math.round(planned.reduce((a,b)=>a+b,0)/planned.length):0,
-      deadline:text(o.previsao_termino)||'2026-12-31', status:workStatus(o.status),
+      deadline:text(o.previsao_termino), status:workStatus(o.status),
       accent:['#721f19','#a64b3e','#ca8170','#995d42','#c08b77'][index%5]
     };
   });
