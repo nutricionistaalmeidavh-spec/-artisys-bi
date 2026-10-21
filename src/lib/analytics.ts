@@ -14,7 +14,7 @@ export interface Expense {
 export interface Machine {
   id: string; name: string; model: string; projectId: string; hours: number;
   fuelCost: number; maintenanceCost: number; laborCost: number;
-  status: 'Operando' | 'Ociosa' | 'Manutenção';
+  status: 'Operando' | 'Ociosa' | 'Manutenção' | 'Não informado';
 }
 export interface Measurement {
   id: string; projectId: string; description: string; date: string;
