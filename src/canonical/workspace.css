@@ -1,0 +1,23 @@
+/* Canonical tables intentionally fit the Opuz design without inventing a second app. */
+.canonical-tabs{display:flex;gap:7px;overflow-x:auto;padding:17px 0;margin:8px 0;scrollbar-width:thin}
+.canonical-tab{border:1px solid #eadbd4;background:#fff;color:#69423b;border-radius:7px;padding:11px 13px;display:inline-flex;align-items:center;gap:9px;white-space:nowrap;font-size:11px;font-weight:700}
+.canonical-tab span{color:#957e75;background:#f3ece8;border-radius:99px;padding:3px 7px;font-size:10px}
+.canonical-tab.selected{background:#641a14;color:#fff;border-color:#641a14}
+.canonical-tab.selected span{background:#ffffff2b;color:#fff}
+.canonical-tab:focus-visible{outline:2px solid #a64b3e;outline-offset:2px}
+.canonical-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px}
+.canonical-actions input{border:1px solid #ddcbc1;background:#fff;color:#4c2a22;border-radius:8px;padding:9px 11px;min-width:150px;width:170px;font-size:12px}
+.canonical-grid{min-width:930px}
+.canonical-grid th{white-space:nowrap;padding:12px}
+.canonical-grid td{padding:10px 12px;white-space:nowrap;max-width:240px;overflow:hidden;text-overflow:ellipsis}
+.canonical-grid td:first-child{font-variant-numeric:tabular-nums}
+.canonical-grid input{border:1px solid #ae8070;background:#fffefa;color:#4b241e;border-radius:5px;padding:9px 8px;width:155px;font-size:12px}
+.canonical-grid input:focus{outline:2px solid #c48575;outline-offset:0}
+.canonical-grid .canonical-row-actions{min-width:126px;max-width:none;white-space:nowrap}
+.canonical-row-actions .icon-button{display:inline-grid}
+.canonical-editing{background:#fdf2ed}
+.canonical-editing td{overflow:visible}
+.canonical-editing button{margin-right:6px}
+.canonical-note{display:flex;align-items:center;gap:8px;font-size:11px;color:#867369;margin:16px 0 0;line-height:1.7}
+.canonical-workspace>.info-banner{margin-bottom:0}
+@media(max-width:740px){.canonical-actions{justify-content:flex-start}.canonical-actions input{flex:1;min-width:135px}.canonical-grid{min-width:920px}.canonical-tabs{margin-bottom:4px}}
