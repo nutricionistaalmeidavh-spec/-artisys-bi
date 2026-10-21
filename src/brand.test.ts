@@ -2,25 +2,46 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 
 const app = readFileSync(new URL('./App.tsx', import.meta.url), 'utf8');
-const css = readFileSync(new URL('./styles.css', import.meta.url), 'utf8');
+const theme = readFileSync(new URL('./styles-opuz.css', import.meta.url), 'utf8');
+const main = readFileSync(new URL('./main.tsx', import.meta.url), 'utf8');
+const data = readFileSync(new URL('./data/demo.ts', import.meta.url), 'utf8');
+const analytics = readFileSync(new URL('./lib/analytics.ts', import.meta.url), 'utf8');
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
-describe('Opuz client-first ArtiSys brand', () => {
-  it('shows the official ArtiSys A symbol instead of the full vendor wordmark', () => {
+describe('Opuz Engenharia | official customer-first visual language', () => {
+  it('keeps only the small ArtiSys A symbol instead of a large vendor wordmark', () => {
     expect(app).toContain('className="brand-icon" src="./artisys-icon.svg"');
+    expect(app).not.toContain('brand-module');
     expect(app).not.toContain('src="./artisys-logo.svg"');
-    expect(app).not.toContain('<strong>arti<span>sys</span>');
-  });
-  it('gives the customer the navigation and hero priority', () => {
-    expect(app).toContain('OPUZ ENGENHARIA · VISÃO OPERACIONAL');
     expect(app).toContain('Opuz Engenharia');
-    expect(app).not.toContain('Conhecer ArtiSys <ArrowUpRight');
   });
-  it('loads the dark ArtiSys violet and blue palette instead of mint', () => {
-    expect(css).toContain('--brand-violet:#af58ff');
-    expect(css).toContain('--brand-blue:#2864ed');
-    expect(css).not.toMatch(/#(?:6adfc4|76e5c9|79e4ca|58d7bb|69d9bf)\b/i);
-    expect(app).not.toContain('#6adfc4');
-    expect(html).toContain('#0a0716');
+  it('applies the Opuz wine-and-white palette after the legacy stylesheet', () => {
+    expect(main).toMatch(/import '\.\/styles\.css';\s*import '\.\/styles-opuz\.css';/);
+    expect(theme).toContain('--opuz-bordeaux: #641a14');
+    expect(theme).toContain('--opuz-paper: #faf9f7');
+    expect(theme).toContain('--opuz-rust: #a64b3e');
+    expect(theme).toContain('.sidebar');
+    expect(theme).toContain('.hero');
+    expect(theme).toContain('.stat-card');
+    expect(theme).toContain('.panel');
+    expect(theme).toContain('.dropzone');
+    expect(theme).not.toContain('#af58ff');
+  });
+  it('uses condensed uppercase headlines and readable body typography', () => {
+    expect(theme).toContain('Oswald');
+    expect(theme).toContain('Roboto');
+    expect(theme).toMatch(/\.hero h2\s*\{/);
+    expect(theme).toMatch(/text-transform:\s*uppercase/);
+  });
+  it('updates all chart accent colors to the Opuz palette', () => {
+    expect(analytics).toContain("Máquinas: '#721f19'");
+    expect(data).toContain("accent: '#721f19'");
+    expect(app).toContain("stroke=\"#721f19\"");
+    expect(app).not.toContain('#af58ff');
+  });
+  it('keeps the demo notices and branding discreet', () => {
+    expect(app).toContain('Dados 100% simulados');
+    expect(app).toContain('OPUZ ENGENHARIA · VISÃO OPERACIONAL');
+    expect(html).toContain('content="#641a14"');
   });
 });
