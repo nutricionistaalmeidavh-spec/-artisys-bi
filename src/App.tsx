@@ -24,7 +24,7 @@ const money = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'curren
 const preciseMoney = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 const compactMoney = (value: number) => new Intl.NumberFormat('pt-BR', { notation: 'compact', maximumFractionDigits: 1 }).format(value);
 const number = (value: number) => new Intl.NumberFormat('pt-BR').format(value);
-const dateBR = (date: string) => /^\\d{4}-\\d{2}-\\d{2}$/.test(date) ? new Date(date + 'T12:00:00').toLocaleDateString('pt-BR') : 'Não informada';
+const dateBR = (date: string) => /^\d{4}-\d{2}-\d{2}$/.test(date) ? new Date(date + 'T12:00:00').toLocaleDateString('pt-BR') : 'Não informada';
 const monthBR = (month: string) => new Date(month + '-10T12:00:00').toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
 const nameOf = (projectId: string, projects: Project[] = demoProjects) => projects.find(p => p.id === projectId)?.name || projectId;
 const tooltipStyle = { background: '#ffffff', border: '1px solid #e2cfc5', borderRadius: 12, color: '#4a2820', boxShadow: '0 16px 36px #0005' };
