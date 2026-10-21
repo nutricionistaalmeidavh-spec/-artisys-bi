@@ -9,12 +9,12 @@ export interface Project {
 }
 export interface Expense {
   id: string; projectId: string; date: string; category: ExpenseCategory;
-  description: string; amount: number; source: 'demo' | 'importado' | 'canonico';
+  description: string; amount: number; source: 'demo' | 'importado';
 }
 export interface Machine {
   id: string; name: string; model: string; projectId: string; hours: number;
   fuelCost: number; maintenanceCost: number; laborCost: number;
-  status: 'Operando' | 'Ociosa' | 'Manutenção' | 'Não informado';
+  status: 'Operando' | 'Ociosa' | 'Manutenção';
 }
 export interface Measurement {
   id: string; projectId: string; description: string; date: string;

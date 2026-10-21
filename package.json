@@ -7,8 +7,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "test": "vitest run && node --test server/index.test.mjs",
-    "serve:canonical": "node server/index.mjs"
+    "test": "vitest run"
   },
   "dependencies": {
     "exceljs": "^4.4.0",
