@@ -25,9 +25,9 @@ const number = (value: number) => new Intl.NumberFormat('pt-BR').format(value);
 const dateBR = (date: string) => new Date(date + 'T12:00:00').toLocaleDateString('pt-BR');
 const monthBR = (month: string) => new Date(month + '-10T12:00:00').toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
 const nameOf = (projectId: string) => demoProjects.find(p => p.id === projectId)?.name || projectId;
-const tooltipStyle = { background: '#152234', border: '1px solid #2b3c50', borderRadius: 12, color: '#eaf3f7', boxShadow: '0 16px 36px #0005' };
+const tooltipStyle = { background: '#17112f', border: '1px solid #493762', borderRadius: 12, color: '#eaf3f7', boxShadow: '0 16px 36px #0005' };
 const axisTick = { fill: '#7e93a8', fontSize: 11 };
-const gridStroke = '#243349';
+const gridStroke = '#302644';
 
 const navigation: { id: Section; label: string; subtitle?: string; icon: typeof LayoutDashboard }[] = [
   { id: 'overview', label: 'Visão geral', icon: LayoutDashboard },
@@ -75,14 +75,14 @@ function Status({ label }: { label: string }) {
   return <span className={'status status-' + cls}><span className="status-dot" />{label}</span>;
 }
 
-function Progress({ value, color = '#6adfc4' }: { value: number; color?: string }) {
+function Progress({ value, color = '#af58ff' }: { value: number; color?: string }) {
   return <div className="progress-track" aria-label={value + '% concluído'}><div className="progress-fill" style={{ width: Math.min(100, Math.max(0, value)) + '%', backgroundColor: color }} /></div>;
 }
 
 function Brand() {
   return <div className="brand">
-    <img className="brand-logo" src="./artisys-logo.svg" alt="ArtiSys" width={560} height={192} />
-    <small className="brand-subtitle">BUSINESS INTELLIGENCE</small>
+    <img className="brand-icon" src="./artisys-icon.svg" alt="ArtiSys" width={38} height={38} />
+    <span className="brand-module">Painel gerencial</span>
   </div>;
 }
 
@@ -91,7 +91,7 @@ function BrandSidebar({ section, setSection, menuOpen, setMenuOpen }: { section:
     {menuOpen && <button type="button" className="sidebar-scrim" aria-label="Fechar navegação" onClick={() => setMenuOpen(false)} />}
     <aside className={'sidebar ' + (menuOpen ? 'sidebar-open' : '')}>
       <div className="sidebar-brand"><Brand /><button className="sidebar-close icon-button" onClick={() => setMenuOpen(false)} aria-label="Fechar menu"><X size={19} /></button></div>
-      <div className="workspace-label">ESPAÇO DE TRABALHO</div>
+      <div className="workspace-label">AMBIENTE DO CLIENTE</div>
       <div className="workspace-card"><span className="workspace-avatar"><Building2 size={18} /></span><span><strong>Opuz Engenharia</strong><small>Ambiente demonstrativo</small></span><ChevronDown size={15} className="workspace-arrow" /></div>
       <p className="nav-label">MENU PRINCIPAL</p>
       <nav className="sidebar-nav" aria-label="Navegação principal">
@@ -101,8 +101,8 @@ function BrandSidebar({ section, setSection, menuOpen, setMenuOpen }: { section:
         </button>)}
       </nav>
       <div className="sidebar-spacer" />
-      <div className="sidebar-insight"><div className="sidebar-insight-icon"><Activity size={17} /></div><strong>Dados que geram decisões.</strong><p>Uma demonstração de como a ArtiSys conecta custos, obras e equipamentos.</p><a href="https://artisys.dev" target="_blank" rel="noreferrer">Conhecer ArtiSys <ArrowUpRight size={14} /></a></div>
-      <div className="sidebar-footer"><div className="tiny-avatar">AS</div><div><strong>ArtiSys BI</strong><small>Versão demonstrativa · v0.1</small></div><MoreHorizontal size={18} /></div>
+      <div className="sidebar-insight"><div className="sidebar-insight-icon"><Activity size={17} /></div><strong>Resumo da operação</strong><p>Indicadores gerenciais de obras e equipamentos. Os valores desta prévia são ilustrativos.</p></div>
+      <div className="sidebar-footer"><div className="tiny-avatar">OP</div><div><strong>Opuz Engenharia</strong><small>Painel demonstrativo</small></div><MoreHorizontal size={18} /></div>
     </aside>
   </>;
 }
@@ -117,10 +117,10 @@ function Overview({ entries, projects, machines, measurements, setSection, setPr
   return <>
     <div className="hero">
       <div className="hero-copy">
-        <span className="hero-kicker"><span className="kicker-mark" /> UMA NOVA VISÃO DA SUA OPERAÇÃO</span>
-        <h2>Do canteiro à decisão.<br /><em>Tudo conectado.</em></h2>
-        <p>Transforme planilhas dispersas em clareza sobre custos, produtividade e evolução de cada obra.</p>
-        <div className="hero-actions"><button className="btn btn-primary" onClick={() => setSection('works')}>Explorar obras <ArrowUpRight size={17} /></button><button className="btn btn-ghost" onClick={() => setSection('machines')}>Ver equipamentos <ArrowRight size={16} /></button></div>
+        <span className="hero-kicker"><span className="kicker-mark" /> OPUZ ENGENHARIA · VISÃO OPERACIONAL</span>
+        <h2>Suas obras, em foco.<br /><em>Decisões com clareza.</em></h2>
+        <p>Acompanhe custos, produtividade e evolução de cada obra em um único painel de gestão.</p>
+        <div className="hero-actions"><button className="btn btn-primary" onClick={() => setSection('works')}>Consultar obras <ArrowUpRight size={17} /></button><button className="btn btn-ghost" onClick={() => setSection('machines')}>Ver equipamentos <ArrowRight size={16} /></button></div>
       </div>
       <div className="hero-art" aria-hidden="true"><div className="art-circle art-circle-1" /><div className="art-circle art-circle-2" /><div className="art-circle art-circle-3" /><div className="art-center"><BarChart3 size={34} /></div><span className="art-node art-node-a" /><span className="art-node art-node-b" /><span className="art-node art-node-c" /></div>
     </div>
@@ -135,15 +135,15 @@ function Overview({ entries, projects, machines, measurements, setSection, setPr
       <Panel title="Evolução dos custos" subtitle="Despesas registradas mês a mês" className="trend-panel" right={<span className="mini-label">R$ · mensal</span>}>
         {monthly.length ? <div className="chart-wrap"><ResponsiveContainer width="100%" height={262}>
           <AreaChart data={monthly} margin={{ top: 15, right: 8, left: 3, bottom: 0 }}>
-            <defs><linearGradient id="expenseFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6adfc4" stopOpacity={0.29}/><stop offset="100%" stopColor="#6adfc4" stopOpacity={0}/></linearGradient></defs>
+            <defs><linearGradient id="expenseFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#af58ff" stopOpacity={0.29}/><stop offset="100%" stopColor="#af58ff" stopOpacity={0}/></linearGradient></defs>
             <CartesianGrid vertical={false} stroke={gridStroke} strokeDasharray="4 6" />
             <XAxis dataKey="month" tickFormatter={monthBR} tick={axisTick} tickLine={false} axisLine={false} dy={12} />
             <YAxis tickFormatter={v => compactMoney(Number(v))} tick={axisTick} tickLine={false} axisLine={false} width={65} />
             <Tooltip contentStyle={tooltipStyle} formatter={v => money(Number(v))} labelFormatter={v => 'Competência ' + String(v)} />
-            <Area type="monotone" dataKey="amount" name="Custos" stroke="#6adfc4" strokeWidth={3} fill="url(#expenseFill)" isAnimationActive={false} dot={{ r: 3, fill: '#6adfc4', strokeWidth: 0 }} activeDot={{ r: 6 }} />
+            <Area type="monotone" dataKey="amount" name="Custos" stroke="#af58ff" strokeWidth={3} fill="url(#expenseFill)" isAnimationActive={false} dot={{ r: 3, fill: '#af58ff', strokeWidth: 0 }} activeDot={{ r: 6 }} />
           </AreaChart>
         </ResponsiveContainer></div> : <ChartEmpty />}
-        <div className="panel-footline"><span><i className="legend-dot mint" /> Custos efetivos da demonstração</span><span>Fonte: lançamentos da amostra</span></div>
+        <div className="panel-footline"><span><i className="legend-dot violet" /> Custos efetivos da demonstração</span><span>Fonte: lançamentos da amostra</span></div>
       </Panel>
       <Panel title="Distribuição de custos" subtitle="Participação por categoria" right={<span className="mini-label">4 categorias</span>}>
         {entries.length ? <><div className="donut-chart"><ResponsiveContainer width="100%" height={194}>
@@ -215,20 +215,20 @@ function Machines({ machines }: { machines: typeof demoMachines }) {
     </div>
     <div className="analytics-grid">
       <Panel title="Custo por hora / equipamento" subtitle="Custo operacional total dividido pelas horas" className="trend-panel" right={<span className="mini-label">R$ / hora</span>}>
-        {chartData.length ? <ResponsiveContainer width="100%" height={280}><BarChart data={chartData} layout="vertical" margin={{ top: 10, left: 0, right: 28, bottom: 0 }}><CartesianGrid stroke={gridStroke} horizontal={false} strokeDasharray="4 5"/><XAxis type="number" tick={axisTick} axisLine={false} tickLine={false} tickFormatter={v=>'R$ '+v}/><YAxis type="category" dataKey="name" tick={axisTick} axisLine={false} tickLine={false} width={88}/><Tooltip cursor={{ fill:'#1d2b3d' }} contentStyle={tooltipStyle} formatter={v=>preciseMoney(Number(v))}/><Bar name="Custo/hora" dataKey="value" fill="#6adfc4" radius={[0,6,6,0]} barSize={17} isAnimationActive={false}/></BarChart></ResponsiveContainer> : <ChartEmpty/>}
+        {chartData.length ? <ResponsiveContainer width="100%" height={280}><BarChart data={chartData} layout="vertical" margin={{ top: 10, left: 0, right: 28, bottom: 0 }}><CartesianGrid stroke={gridStroke} horizontal={false} strokeDasharray="4 5"/><XAxis type="number" tick={axisTick} axisLine={false} tickLine={false} tickFormatter={v=>'R$ '+v}/><YAxis type="category" dataKey="name" tick={axisTick} axisLine={false} tickLine={false} width={88}/><Tooltip cursor={{ fill:'#241b3e' }} contentStyle={tooltipStyle} formatter={v=>preciseMoney(Number(v))}/><Bar name="Custo/hora" dataKey="value" fill="#af58ff" radius={[0,6,6,0]} barSize={17} isAnimationActive={false}/></BarChart></ResponsiveContainer> : <ChartEmpty/>}
       </Panel>
       <Panel title="Composição dos custos" subtitle="Valores ilustrativos da frota selecionada">
         <div className="cost-breakdown">{[
-          {name:'Combustível',value:machines.reduce((s,m)=>s+m.fuelCost,0),color:'#6adfc4'},
-          {name:'Manutenção',value:machines.reduce((s,m)=>s+m.maintenanceCost,0),color:'#edba7b'},
-          {name:'Mão de obra',value:machines.reduce((s,m)=>s+m.laborCost,0),color:'#8eaafb'}
+          {name:'Combustível',value:machines.reduce((s,m)=>s+m.fuelCost,0),color:'#af58ff'},
+          {name:'Manutenção',value:machines.reduce((s,m)=>s+m.maintenanceCost,0),color:'#efbd81'},
+          {name:'Mão de obra',value:machines.reduce((s,m)=>s+m.laborCost,0),color:'#678bff'}
         ].map(item=><div key={item.name} className="cost-line"><div><span><i style={{background:item.color}}/>{item.name}</span><strong>{money(item.value)}</strong></div><Progress value={costs ? item.value / costs * 100 : 0} color={item.color}/></div>)}</div>
         <div className="cost-hint"><Activity size={17}/> Custo médio da frota: <strong>{totalHours ? preciseMoney(costs/totalHours) : '—'} / h</strong></div>
       </Panel>
     </div>
     <Panel title="Cadastro de equipamentos" subtitle="Monitoramento da frota demonstrativa" right={<span className="mini-label">{machines.length} equipamentos</span>}>
       <div className="table-scroll"><table className="data-table"><thead><tr><th>EQUIPAMENTO</th><th>OBRA ALOCADA</th><th>HORAS</th><th>CUSTO TOTAL</th><th>CUSTO/HORA</th><th>STATUS</th></tr></thead><tbody>
-        {machines.map(m=><tr key={m.id}><td><span className="work-name">{m.model}</span><span className="cell-subtext">{m.id} · {m.name}</span></td><td><span className="cell-small">{nameOf(m.projectId)}</span></td><td><strong>{number(m.hours)}h</strong></td><td><strong>{money(m.fuelCost+m.maintenanceCost+m.laborCost)}</strong></td><td><strong className="mint-text">{machineCostPerHour(m) === null ? '—' : preciseMoney(machineCostPerHour(m)!)}</strong></td><td><Status label={m.status}/></td></tr>)}
+        {machines.map(m=><tr key={m.id}><td><span className="work-name">{m.model}</span><span className="cell-subtext">{m.id} · {m.name}</span></td><td><span className="cell-small">{nameOf(m.projectId)}</span></td><td><strong>{number(m.hours)}h</strong></td><td><strong>{money(m.fuelCost+m.maintenanceCost+m.laborCost)}</strong></td><td><strong className="violet-text">{machineCostPerHour(m) === null ? '—' : preciseMoney(machineCostPerHour(m)!)}</strong></td><td><Status label={m.status}/></td></tr>)}
         {!machines.length && <tr><td colSpan={6}><ChartEmpty/></td></tr>}
       </tbody></table></div>
     </Panel>
@@ -383,8 +383,8 @@ export default function App() {
     <BrandSidebar section={section} setSection={navigate} menuOpen={menuOpen} setMenuOpen={setMenuOpen}/>
     <main className="main-area">
       <header className="topbar">
-        <div className="topbar-left"><button className="mobile-menu icon-button" aria-label="Abrir menu" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><div className="breadcrumbs"><span>Workspace</span><ChevronRight size={14}/><strong>{meta.title}</strong></div></div>
-        <div className="topbar-actions"><span className="demo-indicator"><i/> AMBIENTE DEMO</span><span className="top-separator"/><span className="top-date"><CalendarDays size={16}/> 21 out, 2026</span><button className="icon-button top-export" title="Exportar resumo" aria-label="Exportar resumo" onClick={globalExport}><Download size={19}/></button><span className="header-avatar">AS</span></div>
+        <div className="topbar-left"><button className="mobile-menu icon-button" aria-label="Abrir menu" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><div className="breadcrumbs"><span>Opuz Engenharia</span><ChevronRight size={14}/><strong>{meta.title}</strong></div></div>
+        <div className="topbar-actions"><span className="demo-indicator"><i/> DEMONSTRAÇÃO</span><span className="top-separator"/><span className="top-date"><CalendarDays size={16}/> 21 out, 2026</span><button className="icon-button top-export" title="Exportar resumo" aria-label="Exportar resumo" onClick={globalExport}><Download size={19}/></button><span className="header-avatar">OP</span></div>
       </header>
       <div className="content">
         <div className="page-header"><div><span className="page-eyebrow">{meta.eyebrow}</span><h1>{meta.title}<span className="title-point">.</span></h1><p>{meta.description}</p></div><div className="page-header-right"><span className="data-warning"><ShieldCheck size={15}/> Dados 100% simulados</span></div></div>
@@ -399,7 +399,7 @@ export default function App() {
         {section === 'machines' && <Machines machines={machines}/>}
         {section === 'finance' && <Finance entries={entries} measurements={measurements}/>}
         {section === 'imports' && <Imports imported={imported} onApply={rows=>setImported(old=>[...old,...rows])} onReset={()=>setImported([])}/>}
-        <footer className="app-footer"><span>© 2026 ArtiSys · Inteligência que move negócios.</span><span>Protótipo comercial • Dados inteiramente fictícios • <a href="https://artisys.dev" target="_blank" rel="noreferrer">artisys.dev</a></span></footer>
+        <footer className="app-footer"><span>© 2026 · Painel demonstrativo para Opuz Engenharia</span><span>Dados fictícios • Tecnologia <a href="https://artisys.dev" target="_blank" rel="noreferrer">ArtiSys</a></span></footer>
       </div>
     </main>
   </div>;

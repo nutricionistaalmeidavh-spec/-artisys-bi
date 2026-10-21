@@ -23,7 +23,7 @@ export interface Measurement {
 
 export const expenseCategories: ExpenseCategory[] = ['Máquinas', 'Equipe', 'Materiais', 'Terceiros'];
 export const categoryColors: Record<ExpenseCategory, string> = {
-  Máquinas: '#6adfc4', Equipe: '#8eaafb', Materiais: '#edba7b', Terceiros: '#a798ec'
+  Máquinas: '#af58ff', Equipe: '#5f82ff', Materiais: '#efbd81', Terceiros: '#b997f5'
 };
 const cutoffs: Record<Period, string> = { all: '0000-01-01', '90d': '2026-07-23', '30d': '2026-09-21' };
 
