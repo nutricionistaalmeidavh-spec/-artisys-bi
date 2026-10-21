@@ -81,8 +81,8 @@ function Progress({ value, color = '#6adfc4' }: { value: number; color?: string 
 
 function Brand() {
   return <div className="brand">
-    <div className="brand-symbol"><i /><i /><i /></div>
-    <div><strong>arti<span>sys</span></strong><small>BUSINESS INTELLIGENCE</small></div>
+    <img className="brand-logo" src="./artisys-logo.svg" alt="ArtiSys" width={560} height={192} />
+    <small className="brand-subtitle">BUSINESS INTELLIGENCE</small>
   </div>;
 }
 
