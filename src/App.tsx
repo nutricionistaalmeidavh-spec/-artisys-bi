@@ -25,7 +25,7 @@ const number = (value: number) => new Intl.NumberFormat('pt-BR').format(value);
 const dateBR = (date: string) => new Date(date + 'T12:00:00').toLocaleDateString('pt-BR');
 const monthBR = (month: string) => new Date(month + '-10T12:00:00').toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
 const nameOf = (projectId: string) => demoProjects.find(p => p.id === projectId)?.name || projectId;
-const tooltipStyle = { background: '#152234', border: '1px solid #2b3c50', borderRadius: 12, color: '#eaf3f7', boxShadow: '0 16px 36px #0005' };
+const tooltipStyle = { background: '#17112f', border: '1px solid #493762', borderRadius: 12, color: '#eaf3f7', boxShadow: '0 16px 36px #0005' };
 const axisTick = { fill: '#7e93a8', fontSize: 11 };
 const gridStroke = '#302644';
 
@@ -215,13 +215,13 @@ function Machines({ machines }: { machines: typeof demoMachines }) {
     </div>
     <div className="analytics-grid">
       <Panel title="Custo por hora / equipamento" subtitle="Custo operacional total dividido pelas horas" className="trend-panel" right={<span className="mini-label">R$ / hora</span>}>
-        {chartData.length ? <ResponsiveContainer width="100%" height={280}><BarChart data={chartData} layout="vertical" margin={{ top: 10, left: 0, right: 28, bottom: 0 }}><CartesianGrid stroke={gridStroke} horizontal={false} strokeDasharray="4 5"/><XAxis type="number" tick={axisTick} axisLine={false} tickLine={false} tickFormatter={v=>'R$ '+v}/><YAxis type="category" dataKey="name" tick={axisTick} axisLine={false} tickLine={false} width={88}/><Tooltip cursor={{ fill:'#1d2b3d' }} contentStyle={tooltipStyle} formatter={v=>preciseMoney(Number(v))}/><Bar name="Custo/hora" dataKey="value" fill="#af58ff" radius={[0,6,6,0]} barSize={17} isAnimationActive={false}/></BarChart></ResponsiveContainer> : <ChartEmpty/>}
+        {chartData.length ? <ResponsiveContainer width="100%" height={280}><BarChart data={chartData} layout="vertical" margin={{ top: 10, left: 0, right: 28, bottom: 0 }}><CartesianGrid stroke={gridStroke} horizontal={false} strokeDasharray="4 5"/><XAxis type="number" tick={axisTick} axisLine={false} tickLine={false} tickFormatter={v=>'R$ '+v}/><YAxis type="category" dataKey="name" tick={axisTick} axisLine={false} tickLine={false} width={88}/><Tooltip cursor={{ fill:'#241b3e' }} contentStyle={tooltipStyle} formatter={v=>preciseMoney(Number(v))}/><Bar name="Custo/hora" dataKey="value" fill="#af58ff" radius={[0,6,6,0]} barSize={17} isAnimationActive={false}/></BarChart></ResponsiveContainer> : <ChartEmpty/>}
       </Panel>
       <Panel title="Composição dos custos" subtitle="Valores ilustrativos da frota selecionada">
         <div className="cost-breakdown">{[
           {name:'Combustível',value:machines.reduce((s,m)=>s+m.fuelCost,0),color:'#af58ff'},
           {name:'Manutenção',value:machines.reduce((s,m)=>s+m.maintenanceCost,0),color:'#efbd81'},
-          {name:'Mão de obra',value:machines.reduce((s,m)=>s+m.laborCost,0),color:'#8eaafb'}
+          {name:'Mão de obra',value:machines.reduce((s,m)=>s+m.laborCost,0),color:'#678bff'}
         ].map(item=><div key={item.name} className="cost-line"><div><span><i style={{background:item.color}}/>{item.name}</span><strong>{money(item.value)}</strong></div><Progress value={costs ? item.value / costs * 100 : 0} color={item.color}/></div>)}</div>
         <div className="cost-hint"><Activity size={17}/> Custo médio da frota: <strong>{totalHours ? preciseMoney(costs/totalHours) : '—'} / h</strong></div>
       </Panel>
