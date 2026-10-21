@@ -221,11 +221,13 @@ function Machines({ machines, projects, connected }: { machines: typeof demoMach
         {chartData.length ? <ResponsiveContainer width="100%" height={280}><BarChart data={chartData} layout="vertical" margin={{ top: 10, left: 0, right: 28, bottom: 0 }}><CartesianGrid stroke={gridStroke} horizontal={false} strokeDasharray="4 5"/><XAxis type="number" tick={axisTick} axisLine={false} tickLine={false} tickFormatter={v=>'R$ '+v}/><YAxis type="category" dataKey="name" tick={axisTick} axisLine={false} tickLine={false} width={88}/><Tooltip cursor={{ fill:'#f6ede7' }} contentStyle={tooltipStyle} formatter={v=>preciseMoney(Number(v))}/><Bar name="Custo/hora" dataKey="value" fill="#721f19" radius={[0,6,6,0]} barSize={17} isAnimationActive={false}/></BarChart></ResponsiveContainer> : <ChartEmpty/>}
       </Panel>
       <Panel title="Composição dos custos" subtitle={connected ? 'Registro consolidado dos RDOs — sem inferir diesel ou manutenção' : 'Valores ilustrativos da frota selecionada'}>
-        <div className="cost-breakdown">{[
+        <div className="cost-breakdown">{(connected ? [
+          {name:'Custo total lançado nos RDOs',value:costs,color:'#721f19'}
+        ] : [
           {name:'Combustível',value:machines.reduce((s,m)=>s+m.fuelCost,0),color:'#721f19'},
           {name:'Manutenção',value:machines.reduce((s,m)=>s+m.maintenanceCost,0),color:'#ca8170'},
           {name:'Mão de obra',value:machines.reduce((s,m)=>s+m.laborCost,0),color:'#a64b3e'}
-        ].map(item=><div key={item.name} className="cost-line"><div><span><i style={{background:item.color}}/>{item.name}</span><strong>{money(item.value)}</strong></div><Progress value={costs ? item.value / costs * 100 : 0} color={item.color}/></div>)}</div>
+        ]).map(item=><div key={item.name} className="cost-line"><div><span><i style={{background:item.color}}/>{item.name}</span><strong>{money(item.value)}</strong></div><Progress value={costs ? item.value / costs * 100 : 0} color={item.color}/></div>)}</div>
         <div className="cost-hint"><Activity size={17}/> Custo médio da frota: <strong>{totalHours ? preciseMoney(costs/totalHours) : '—'} / h</strong></div>
       </Panel>
     </div>
