@@ -9,7 +9,7 @@ export interface Project {
 }
 export interface Expense {
   id: string; projectId: string; date: string; category: ExpenseCategory;
-  description: string; amount: number; source: 'demo' | 'importado';
+  description: string; amount: number; source: 'demo' | 'importado' | 'canonico';
 }
 export interface Machine {
   id: string; name: string; model: string; projectId: string; hours: number;
