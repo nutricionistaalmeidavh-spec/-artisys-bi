@@ -1,11 +1,11 @@
 import type { Expense, Machine, Measurement, Project } from '../lib/analytics';
 
 export const demoProjects: Project[] = [
-  { id: 'obra-01', code: 'OB-001', name: 'Terraplenagem Industrial', location: 'Curitiba, PR', client: 'Complexo Industrial Norte', budget: 920000, progress: 72, planned: 76, deadline: '2026-11-28', status: 'Em execução', accent: '#af58ff' },
-  { id: 'obra-02', code: 'OB-002', name: 'Infraestrutura Viária', location: 'Araucária, PR', client: 'Corredor Logístico Sul', budget: 680000, progress: 61, planned: 68, deadline: '2026-12-18', status: 'Em execução', accent: '#678bff' },
-  { id: 'obra-03', code: 'OB-003', name: 'Demolição Controlada', location: 'São José dos Pinhais, PR', client: 'Parque Empresarial', budget: 410000, progress: 91, planned: 87, deadline: '2026-11-05', status: 'Em execução', accent: '#e2bd86' },
-  { id: 'obra-04', code: 'OB-004', name: 'Pátio Logístico', location: 'Pinhais, PR', client: 'Terminal de Cargas', budget: 550000, progress: 73, planned: 91, deadline: '2026-10-31', status: 'Atenção', accent: '#f5a77f' },
-  { id: 'obra-05', code: 'OB-005', name: 'Rede de Drenagem', location: 'Colombo, PR', client: 'Distrito Operacional', budget: 300000, progress: 45, planned: 49, deadline: '2027-01-15', status: 'Em execução', accent: '#c58aff' }
+  { id: 'obra-01', code: 'OB-001', name: 'Terraplenagem Industrial', location: 'Curitiba, PR', client: 'Complexo Industrial Norte', budget: 920000, progress: 72, planned: 76, deadline: '2026-11-28', status: 'Em execução', accent: '#721f19' },
+  { id: 'obra-02', code: 'OB-002', name: 'Infraestrutura Viária', location: 'Araucária, PR', client: 'Corredor Logístico Sul', budget: 680000, progress: 61, planned: 68, deadline: '2026-12-18', status: 'Em execução', accent: '#a64b3e' },
+  { id: 'obra-03', code: 'OB-003', name: 'Demolição Controlada', location: 'São José dos Pinhais, PR', client: 'Parque Empresarial', budget: 410000, progress: 91, planned: 87, deadline: '2026-11-05', status: 'Em execução', accent: '#d0a088' },
+  { id: 'obra-04', code: 'OB-004', name: 'Pátio Logístico', location: 'Pinhais, PR', client: 'Terminal de Cargas', budget: 550000, progress: 73, planned: 91, deadline: '2026-10-31', status: 'Atenção', accent: '#b97454' },
+  { id: 'obra-05', code: 'OB-005', name: 'Rede de Drenagem', location: 'Colombo, PR', client: 'Distrito Operacional', budget: 300000, progress: 45, planned: 49, deadline: '2027-01-15', status: 'Em execução', accent: '#945044' }
 ];
 
 const projectMonthly: Record<string, number[]> = {
