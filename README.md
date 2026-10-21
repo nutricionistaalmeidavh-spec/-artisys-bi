@@ -69,8 +69,9 @@ Os componentes e agregações usados nesta demonstração foram implementados de
 
 - React / TypeScript / Vite / Recharts / Lucide / ExcelJS.
 - Bibliotecas open source e hospedagem self-hosted: **R$ 0 em licenças obrigatórias**.
-- Sem Power BI, Azure, Google Gemini, API externa, chave paga ou fontes remotas.
-- Próxima etapa potencial: serviço backend Node.js, SQLite local para instalação leve ou PostgreSQL para uso multiusuário centralizado. **Ainda não estão implementados.**
+- Sem Power BI, Azure, Google Gemini ou licença obrigatória de BI.
+- O **gateway Node.js local** encaminha chamadas à API LAN do Obra na Mão. Banco, identidade, concorrência e serviços de domínio continuam no **servidor original**; este repositório não cria outra base de dados.
+- O GitHub Pages publica apenas o frontend de demonstração e não hospeda a API LAN. Operação multiusuário remota depende de expor a infraestrutura original por um canal seguro, sem colocar tokens no navegador.
 
 ## Critérios de aceitação
 
