@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   Activity, ArrowDownRight, ArrowRight, ArrowUpRight, BarChart3, Building2, CalendarDays,
   CheckCircle2, ChevronDown, ChevronRight, CircleAlert, Clock3, Download, FileSpreadsheet,
@@ -10,13 +10,15 @@ import {
   Tooltip, XAxis, YAxis
 } from 'recharts';
 import { demoExpenses, demoMachines, demoMeasurements, demoProjects } from './data/demo';
+import { loadCanonicalSnapshot, toDashboardData, type CanonicalSnapshot } from './canonical/bridge';
+import { CanonicalWorkspace } from './canonical/Workspace';
 import {
   buildSummary, categoryColors, expenseCategories, exportCsv, filterExpenses, getCategoryTotals,
   getMonthlyTrend, getProjectRows, machineCostPerHour, normalizeImportedRows, parseCsv,
   type Expense, type Period, type Project
 } from './lib/analytics';
 
-type Section = 'overview' | 'works' | 'machines' | 'finance' | 'imports';
+type Section = 'overview' | 'works' | 'machines' | 'finance' | 'imports' | 'operacao';
 type Preview = { file: string; valid: Expense[]; errors: string[] };
 const money = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(value);
 const preciseMoney = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -24,7 +26,7 @@ const compactMoney = (value: number) => new Intl.NumberFormat('pt-BR', { notatio
 const number = (value: number) => new Intl.NumberFormat('pt-BR').format(value);
 const dateBR = (date: string) => new Date(date + 'T12:00:00').toLocaleDateString('pt-BR');
 const monthBR = (month: string) => new Date(month + '-10T12:00:00').toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
-const nameOf = (projectId: string) => demoProjects.find(p => p.id === projectId)?.name || projectId;
+const nameOf = (projectId: string, projects: Project[] = demoProjects) => projects.find(p => p.id === projectId)?.name || projectId;
 const tooltipStyle = { background: '#ffffff', border: '1px solid #e2cfc5', borderRadius: 12, color: '#4a2820', boxShadow: '0 16px 36px #0005' };
 const axisTick = { fill: '#8e776e', fontSize: 11 };
 const gridStroke = '#efdfd7';
@@ -34,14 +36,16 @@ const navigation: { id: Section; label: string; subtitle?: string; icon: typeof 
   { id: 'works', label: 'Gestão de obras', icon: HardHat },
   { id: 'machines', label: 'Máquinas e frota', icon: Truck },
   { id: 'finance', label: 'Financeiro', icon: Wallet },
-  { id: 'imports', label: 'Importar dados', icon: FileSpreadsheet }
+  { id: 'imports', label: 'Importar dados', icon: FileSpreadsheet },
+  { id: 'operacao', label: 'Registros canônicos', icon: Layers3 }
 ];
 const pageMeta: Record<Section, { eyebrow: string; title: string; description: string }> = {
   overview: { eyebrow: 'CENTRAL DE INTELIGÊNCIA', title: 'Visão geral', description: 'Acompanhe o cenário completo da sua operação.' },
   works: { eyebrow: 'OPERAÇÃO & DESEMPENHO', title: 'Gestão de obras', description: 'Custo, execução e prazos em uma única visão.' },
   machines: { eyebrow: 'ATIVOS & PRODUTIVIDADE', title: 'Máquinas e frota', description: 'Controle operacional, disponibilidade e custo por hora.' },
   finance: { eyebrow: 'GESTÃO FINANCEIRA', title: 'Painel financeiro', description: 'Entenda onde o dinheiro está sendo aplicado.' },
-  imports: { eyebrow: 'INTEGRAÇÃO DE DADOS', title: 'Central de importação', description: 'Transforme arquivos operacionais em indicadores.' }
+  imports: { eyebrow: 'INTEGRAÇÃO DE DADOS', title: 'Central de importação', description: 'Transforme arquivos operacionais em indicadores.' },
+  operacao: { eyebrow: 'DADOS OPERACIONAIS', title: 'Registros canônicos', description: 'Módulos do Obra na Mão conectados sem copiar registros.' }
 };
 
 function download(filename: string, content: string) {
@@ -85,13 +89,13 @@ function Brand() {
   </div>;
 }
 
-function BrandSidebar({ section, setSection, menuOpen, setMenuOpen }: { section: Section; setSection: (s: Section) => void; menuOpen: boolean; setMenuOpen: (v: boolean) => void }) {
+function BrandSidebar({ section, setSection, menuOpen, setMenuOpen, connected }: { section: Section; setSection: (s: Section) => void; menuOpen: boolean; setMenuOpen: (v: boolean) => void; connected: boolean }) {
   return <>
     {menuOpen && <button type="button" className="sidebar-scrim" aria-label="Fechar navegação" onClick={() => setMenuOpen(false)} />}
     <aside className={'sidebar ' + (menuOpen ? 'sidebar-open' : '')}>
       <div className="sidebar-brand"><Brand /><button className="sidebar-close icon-button" onClick={() => setMenuOpen(false)} aria-label="Fechar menu"><X size={19} /></button></div>
       <div className="workspace-label">AMBIENTE DO CLIENTE</div>
-      <div className="workspace-card"><span className="workspace-avatar"><Building2 size={18} /></span><span><strong>Opuz Engenharia</strong><small>Ambiente demonstrativo</small></span><ChevronDown size={15} className="workspace-arrow" /></div>
+      <div className="workspace-card"><span className="workspace-avatar"><Building2 size={18} /></span><span><strong>Opuz Engenharia</strong><small>{connected ? 'Fonte canônica conectada' : 'Ambiente demonstrativo'}</small></span><ChevronDown size={15} className="workspace-arrow" /></div>
       <p className="nav-label">MENU PRINCIPAL</p>
       <nav className="sidebar-nav" aria-label="Navegação principal">
         {navigation.map(item => <button key={item.id} className={'nav-item ' + (section === item.id ? 'active' : '')} onClick={() => { setSection(item.id); setMenuOpen(false); }}>
@@ -200,23 +204,23 @@ function Works({ projects, entries, search, setSearch, setProject }: { projects:
   </>;
 }
 
-function Machines({ machines }: { machines: typeof demoMachines }) {
+function Machines({ machines, projects, connected }: { machines: typeof demoMachines; projects: Project[]; connected: boolean }) {
   const totalHours = machines.reduce((s,m)=>s+m.hours,0);
   const costs = machines.reduce((s,m)=>s+m.fuelCost+m.maintenanceCost+m.laborCost,0);
   const chartData = machines.map(m => ({ name:m.model, value:machineCostPerHour(m) || 0, status:m.status })).sort((a,b)=>b.value-a.value);
   return <>
-    <div className="page-intro"><div><span className="section-kicker">MONITORAMENTO DE ATIVOS</span><h2>Cada hora de máquina tem um custo.</h2><p>Visualize produtividade, combustível, manutenção e custo operacional dos equipamentos.</p></div><div className="intro-icon"><Truck size={30}/></div></div>
+    <div className="page-intro"><div><span className="section-kicker">MONITORAMENTO DE ATIVOS</span><h2>Cada hora de máquina tem um custo.</h2><p>{connected ? 'Horas e custo apontados nos RDOs canônicos de cada obra.' : 'Visualize produtividade, combustível, manutenção e custo operacional dos equipamentos.'}</p></div><div className="intro-icon"><Truck size={30}/></div></div>
     <div className="stat-grid">
-      <StatCard label="Máquinas cadastradas" value={String(machines.length).padStart(2,'0')} foot="Ativos associados às obras" icon={<Truck size={19}/>}/>
+      <StatCard label="Máquinas cadastradas" value={String(machines.length).padStart(2,'0')} foot={connected ? 'Equipamentos agrupados dos RDOs' : 'Ativos associados às obras'} icon={<Truck size={19}/>}/>
       <StatCard label="Horas trabalhadas" value={number(totalHours) + 'h'} foot="Horímetros simulados" icon={<Clock3 size={19}/>} tone="blue"/>
-      <StatCard label="Custo operacional" value={compactMoney(costs)} foot="Combustível, manutenção e equipe" icon={<Wallet size={19}/>} tone="purple"/>
+      <StatCard label="Custo operacional" value={compactMoney(costs)} foot={connected ? 'Custo apontado nos RDOs' : 'Combustível, manutenção e equipe'} icon={<Wallet size={19}/>} tone="purple"/>
       <StatCard label="Em manutenção" value={String(machines.filter(m=>m.status==='Manutenção').length).padStart(2,'0')} foot="Ativos temporariamente indisponíveis" icon={<Wrench size={19}/>} tone="amber"/>
     </div>
     <div className="analytics-grid">
       <Panel title="Custo por hora / equipamento" subtitle="Custo operacional total dividido pelas horas" className="trend-panel" right={<span className="mini-label">R$ / hora</span>}>
         {chartData.length ? <ResponsiveContainer width="100%" height={280}><BarChart data={chartData} layout="vertical" margin={{ top: 10, left: 0, right: 28, bottom: 0 }}><CartesianGrid stroke={gridStroke} horizontal={false} strokeDasharray="4 5"/><XAxis type="number" tick={axisTick} axisLine={false} tickLine={false} tickFormatter={v=>'R$ '+v}/><YAxis type="category" dataKey="name" tick={axisTick} axisLine={false} tickLine={false} width={88}/><Tooltip cursor={{ fill:'#f6ede7' }} contentStyle={tooltipStyle} formatter={v=>preciseMoney(Number(v))}/><Bar name="Custo/hora" dataKey="value" fill="#721f19" radius={[0,6,6,0]} barSize={17} isAnimationActive={false}/></BarChart></ResponsiveContainer> : <ChartEmpty/>}
       </Panel>
-      <Panel title="Composição dos custos" subtitle="Valores ilustrativos da frota selecionada">
+      <Panel title="Composição dos custos" subtitle={connected ? 'Registro consolidado dos RDOs — sem inferir diesel ou manutenção' : 'Valores ilustrativos da frota selecionada'}>
         <div className="cost-breakdown">{[
           {name:'Combustível',value:machines.reduce((s,m)=>s+m.fuelCost,0),color:'#721f19'},
           {name:'Manutenção',value:machines.reduce((s,m)=>s+m.maintenanceCost,0),color:'#ca8170'},
@@ -227,22 +231,22 @@ function Machines({ machines }: { machines: typeof demoMachines }) {
     </div>
     <Panel title="Cadastro de equipamentos" subtitle="Monitoramento da frota demonstrativa" right={<span className="mini-label">{machines.length} equipamentos</span>}>
       <div className="table-scroll"><table className="data-table"><thead><tr><th>EQUIPAMENTO</th><th>OBRA ALOCADA</th><th>HORAS</th><th>CUSTO TOTAL</th><th>CUSTO/HORA</th><th>STATUS</th></tr></thead><tbody>
-        {machines.map(m=><tr key={m.id}><td><span className="work-name">{m.model}</span><span className="cell-subtext">{m.id} · {m.name}</span></td><td><span className="cell-small">{nameOf(m.projectId)}</span></td><td><strong>{number(m.hours)}h</strong></td><td><strong>{money(m.fuelCost+m.maintenanceCost+m.laborCost)}</strong></td><td><strong className="violet-text">{machineCostPerHour(m) === null ? '—' : preciseMoney(machineCostPerHour(m)!)}</strong></td><td><Status label={m.status}/></td></tr>)}
+        {machines.map(m=><tr key={m.id}><td><span className="work-name">{m.model}</span><span className="cell-subtext">{m.id} · {m.name}</span></td><td><span className="cell-small">{nameOf(m.projectId,projects)}</span></td><td><strong>{number(m.hours)}h</strong></td><td><strong>{money(m.fuelCost+m.maintenanceCost+m.laborCost)}</strong></td><td><strong className="violet-text">{machineCostPerHour(m) === null ? '—' : preciseMoney(machineCostPerHour(m)!)}</strong></td><td><Status label={m.status}/></td></tr>)}
         {!machines.length && <tr><td colSpan={6}><ChartEmpty/></td></tr>}
       </tbody></table></div>
     </Panel>
-    <div className="info-banner"><CircleAlert size={18}/><span>Os valores de maquinário ilustram um cálculo de custo/hora. Não representam custos reais informados pela Opuz.</span></div>
+    <div className="info-banner"><CircleAlert size={18}/><span>{connected ? 'Valores originados dos apontamentos RDO. O servidor não separa esses custos por combustível e manutenção neste contrato; não use este gráfico como decomposição contábil.' : 'Os valores de maquinário ilustram um cálculo de custo/hora. Não representam custos reais informados pela Opuz.'}</span></div>
   </>;
 }
 
-function Finance({ entries, measurements }: { entries: Expense[]; measurements: typeof demoMeasurements }) {
+function Finance({ entries, measurements, projects }: { entries: Expense[]; measurements: typeof demoMeasurements; projects: Project[] }) {
   const categories = getCategoryTotals(entries);
   const months = getMonthlyTrend(entries);
   const total = entries.reduce((sum, entry) => sum + entry.amount, 0);
   const ordered = [...entries].sort((a,b)=>b.date.localeCompare(a.date));
   const onExport = () => download('artisys-bi-lancamentos.csv', exportCsv([
     ['obra','data','categoria','descricao','valor'],
-    ...ordered.map(item => [nameOf(item.projectId),item.date,item.category,item.description,item.amount])
+    ...ordered.map(item => [nameOf(item.projectId,projects),item.date,item.category,item.description,item.amount])
   ]));
   return <>
     <div className="page-intro"><div><span className="section-kicker">RASTREABILIDADE DOS CUSTOS</span><h2>Dos lançamentos à estratégia.</h2><p>Identifique despesas por categoria, período e obra, sem perder o contexto operacional.</p></div><div className="intro-icon"><Wallet size={29}/></div></div>
@@ -261,13 +265,13 @@ function Finance({ entries, measurements }: { entries: Expense[]; measurements: 
     </div>
     <Panel title="Livro de lançamentos" subtitle="Registros do período com rastreabilidade de origem" right={<button className="btn btn-small btn-outline" onClick={onExport}><Download size={15}/> Exportar CSV</button>}>
       <div className="table-scroll"><table className="data-table"><thead><tr><th>DATA</th><th>DESCRIÇÃO</th><th>OBRA</th><th>CATEGORIA</th><th>ORIGEM</th><th className="text-right">VALOR</th></tr></thead><tbody>
-        {ordered.slice(0,45).map(e=><tr key={e.id}><td><span className="cell-small">{dateBR(e.date)}</span></td><td><span className="work-name">{e.description}</span></td><td><span className="cell-small">{nameOf(e.projectId)}</span></td><td><span className="chip">{e.category}</span></td><td><span className="cell-small">{e.source === 'demo' ? 'Amostra' : 'Importação'}</span></td><td className="text-right"><strong>{preciseMoney(e.amount)}</strong></td></tr>)}
+        {ordered.slice(0,45).map(e=><tr key={e.id}><td><span className="cell-small">{dateBR(e.date)}</span></td><td><span className="work-name">{e.description}</span></td><td><span className="cell-small">{nameOf(e.projectId,projects)}</span></td><td><span className="chip">{e.category}</span></td><td><span className="cell-small">{e.source === 'demo' ? 'Amostra' : e.source === 'canonico' ? 'Obra na Mão' : 'Importação'}</span></td><td className="text-right"><strong>{preciseMoney(e.amount)}</strong></td></tr>)}
         {!ordered.length && <tr><td colSpan={6}><ChartEmpty/></td></tr>}
       </tbody></table></div>
       {ordered.length>45 && <p className="table-count">Exibindo os 45 lançamentos mais recentes. O CSV exporta todos os {ordered.length} registros filtrados.</p>}
     </Panel>
     <Panel title="Medições por obra" subtitle="Controle gerencial de boletins e aprovações" className="measurements-panel">
-      <div className="measurement-list">{measurements.map(m=><div className="measurement-item" key={m.id}><div className="measurement-badge"><FileSpreadsheet size={18}/></div><div className="measurement-details"><strong>{m.description}</strong><small>{m.id} · {nameOf(m.projectId)} · {dateBR(m.date)}</small></div><strong>{money(m.amount)}</strong><Status label={m.status}/></div>)}{!measurements.length&&<div className="empty-state">Não há medições nessa seleção.</div>}</div>
+      <div className="measurement-list">{measurements.map(m=><div className="measurement-item" key={m.id}><div className="measurement-badge"><FileSpreadsheet size={18}/></div><div className="measurement-details"><strong>{m.description}</strong><small>{m.id} · {nameOf(m.projectId,projects)} · {dateBR(m.date)}</small></div><strong>{money(m.amount)}</strong><Status label={m.status}/></div>)}{!measurements.length&&<div className="empty-state">Não há medições nessa seleção.</div>}</div>
     </Panel>
   </>;
 }
@@ -337,7 +341,7 @@ function Imports({ imported, onApply, onReset }: { imported: Expense[]; onApply:
         {preview && <div className="import-preview">
           <div className="preview-header"><div><strong><FileSpreadsheet size={17}/>{preview.file}</strong><small>{preview.valid.length} registros válidos · {preview.errors.length} linha(s) com erro</small></div><button className="icon-button" onClick={()=>setPreview(null)} aria-label="Descartar prévia"><X size={18}/></button></div>
           {preview.errors.length>0 && <div className="import-error"><CircleAlert size={17}/><span>{preview.errors.slice(0,3).join(' ')} {preview.errors.length>3?'Outros erros foram omitidos.':''}</span></div>}
-          {preview.valid.length>0 && <><div className="preview-rows">{preview.valid.slice(0,4).map(e=><div key={e.id}><span>{nameOf(e.projectId)}<small>{e.description}</small></span><strong>{preciseMoney(e.amount)}</strong></div>)}</div><button className="btn btn-primary full-width" onClick={()=>{onApply(preview.valid);setPreview(null);}}>Aplicar {preview.valid.length} lançamento(s) ao painel <ArrowRight size={16}/></button></>}
+          {preview.valid.length>0 && <><div className="preview-rows">{preview.valid.slice(0,4).map(e=><div key={e.id}><span>{nameOf(e.projectId,projects)}<small>{e.description}</small></span><strong>{preciseMoney(e.amount)}</strong></div>)}</div><button className="btn btn-primary full-width" onClick={()=>{onApply(preview.valid);setPreview(null);}}>Aplicar {preview.valid.length} lançamento(s) ao painel <ArrowRight size={16}/></button></>}
         </div>}
       </Panel>
       <div className="import-side">
@@ -366,11 +370,29 @@ export default function App() {
   const [imported, setImported] = useState<Expense[]>([]);
   const [search, setSearch] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
-  const allEntries = useMemo(() => [...demoExpenses, ...imported], [imported]);
+  const [canonical,setCanonical] = useState<CanonicalSnapshot|null>(null);
+  const [sourceError,setSourceError] = useState('');
+  const [sourcePending,setSourcePending] = useState(true);
+  const refreshCanonical = async () => {
+    try {
+      const source=await loadCanonicalSnapshot();
+      setCanonical(source);setSourceError('');
+    }catch(e) {
+      const message=e instanceof Error?e.message:String(e);
+      if(!message.includes('HTTP 404'))setSourceError(message);
+    }finally{setSourcePending(false);}
+  };
+  useEffect(()=>{void refreshCanonical();},[]);
+  const connected=canonical!==null;
+  const projection=useMemo(()=>canonical?toDashboardData(canonical):null,[canonical]);
+  const sourceProjects=projection?.projects??demoProjects;
+  const sourceMachines=projection?.machines??demoMachines;
+  const sourceMeasurements=projection?.measurements??demoMeasurements;
+  const allEntries = useMemo(() => projection?projection.expenses:[...demoExpenses, ...imported], [projection,imported]);
   const entries = useMemo(() => filterExpenses(allEntries, selectedProject, period), [allEntries, selectedProject, period]);
-  const projects = useMemo(() => selectedProject === 'all' ? demoProjects : demoProjects.filter(p=>p.id===selectedProject), [selectedProject]);
-  const machines = useMemo(() => demoMachines.filter(m=>selectedProject==='all'||m.projectId===selectedProject), [selectedProject]);
-  const measurements = useMemo(() => demoMeasurements.filter(m=>selectedProject==='all'||m.projectId===selectedProject), [selectedProject]);
+  const projects = useMemo(() => selectedProject === 'all' ? sourceProjects : sourceProjects.filter(p=>p.id===selectedProject), [sourceProjects,selectedProject]);
+  const machines = useMemo(() => sourceMachines.filter(m=>selectedProject==='all'||m.projectId===selectedProject), [sourceMachines,selectedProject]);
+  const measurements = useMemo(() => sourceMeasurements.filter(m=>selectedProject==='all'||m.projectId===selectedProject), [sourceMeasurements,selectedProject]);
   const meta = pageMeta[section];
   const navigate = (newSection: Section) => { setSection(newSection); window.scrollTo({top:0,behavior:'smooth'}); };
   const globalExport = () => download('artisys-bi-resumo.csv', exportCsv([
@@ -379,26 +401,29 @@ export default function App() {
   ]));
 
   return <div className="app-shell">
-    <BrandSidebar section={section} setSection={navigate} menuOpen={menuOpen} setMenuOpen={setMenuOpen}/>
+    <BrandSidebar section={section} setSection={navigate} menuOpen={menuOpen} setMenuOpen={setMenuOpen} connected={connected}/>
     <main className="main-area">
       <header className="topbar">
         <div className="topbar-left"><button className="mobile-menu icon-button" aria-label="Abrir menu" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><div className="breadcrumbs"><span>Opuz Engenharia</span><ChevronRight size={14}/><strong>{meta.title}</strong></div></div>
-        <div className="topbar-actions"><span className="demo-indicator"><i/> DEMONSTRAÇÃO</span><span className="top-separator"/><span className="top-date"><CalendarDays size={16}/> 21 out, 2026</span><button className="icon-button top-export" title="Exportar resumo" aria-label="Exportar resumo" onClick={globalExport}><Download size={19}/></button><span className="header-avatar">OP</span></div>
+        <div className="topbar-actions"><span className="demo-indicator"><i/> {connected ? 'CANÔNICO' : 'DEMONSTRAÇÃO'}</span><span className="top-separator"/><span className="top-date"><CalendarDays size={16}/> 21 out, 2026</span><button className="icon-button top-export" title="Exportar resumo" aria-label="Exportar resumo" onClick={globalExport}><Download size={19}/></button><span className="header-avatar">OP</span></div>
       </header>
       <div className="content">
-        <div className="page-header"><div><span className="page-eyebrow">{meta.eyebrow}</span><h1>{meta.title}<span className="title-point">.</span></h1><p>{meta.description}</p></div><div className="page-header-right"><span className="data-warning"><ShieldCheck size={15}/> Dados 100% simulados</span></div></div>
-        {section !== 'imports' && <div className="filters-bar"><div className="filters-title"><Filter size={17}/><span>Filtros de análise</span></div><div className="filters-controls">
-          <label className="select-wrap"><Building2 size={16}/><select aria-label="Filtrar por obra" value={selectedProject} onChange={e=>setSelectedProject(e.target.value)}><option value="all">Todas as obras</option>{demoProjects.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select><ChevronDown size={15}/></label>
+        <div className="page-header"><div><span className="page-eyebrow">{meta.eyebrow}</span><h1>{meta.title}<span className="title-point">.</span></h1><p>{meta.description}</p></div><div className="page-header-right"><span className="data-warning"><ShieldCheck size={15}/> {connected ? 'Fonte: Obra na Mão' : 'Dados 100% simulados'}</span></div></div>
+        {section !== 'imports' && section !== 'operacao' && <div className="filters-bar"><div className="filters-title"><Filter size={17}/><span>Filtros de análise</span></div><div className="filters-controls">
+          <label className="select-wrap"><Building2 size={16}/><select aria-label="Filtrar por obra" value={selectedProject} onChange={e=>setSelectedProject(e.target.value)}><option value="all">Todas as obras</option>{sourceProjects.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select><ChevronDown size={15}/></label>
           <label className="select-wrap period-select"><CalendarDays size={16}/><select aria-label="Filtrar por período" value={period} onChange={e=>setPeriod(e.target.value as Period)}><option value="all">Todo o histórico</option><option value="90d">Últimos 90 dias</option><option value="30d">Últimos 30 dias</option></select><ChevronDown size={15}/></label>
           {(selectedProject!=='all'||period!=='all')&&<button className="filter-reset" onClick={()=>{setSelectedProject('all');setPeriod('all')}}><X size={14}/> Limpar filtros</button>}
         </div></div>}
-        {imported.length>0 && section!=='imports' && <div className="import-notice"><CheckCircle2 size={17}/>{imported.length} lançamento(s) importado(s) nesta sessão estão incluídos nos custos. <button onClick={()=>navigate('imports')}>Gerenciar <ArrowRight size={14}/></button></div>}
+        {sourceError && <div className="info-banner" role="alert"><CircleAlert size={17}/><span>Conexão canônica indisponível: {sourceError}. Não foram misturados dados reais aos fictícios.</span></div>}
+        {sourcePending && <div className="info-banner">Verificando fonte canônica…</div>}
+        {imported.length>0 && !connected && section!=='imports' && <div className="import-notice"><CheckCircle2 size={17}/>{imported.length} lançamento(s) importado(s) nesta sessão estão incluídos nos custos. <button onClick={()=>navigate('imports')}>Gerenciar <ArrowRight size={14}/></button></div>}
         {section === 'overview' && <Overview entries={entries} projects={projects} machines={machines} measurements={measurements} setSection={navigate} setProject={setSelectedProject}/>}
         {section === 'works' && <Works projects={projects} entries={entries} search={search} setSearch={setSearch} setProject={setSelectedProject}/>}
-        {section === 'machines' && <Machines machines={machines}/>}
-        {section === 'finance' && <Finance entries={entries} measurements={measurements}/>}
-        {section === 'imports' && <Imports imported={imported} onApply={rows=>setImported(old=>[...old,...rows])} onReset={()=>setImported([])}/>}
-        <footer className="app-footer"><span>© 2026 · Painel demonstrativo para Opuz Engenharia</span><span>Dados fictícios • Tecnologia <a href="https://artisys.dev" target="_blank" rel="noreferrer">ArtiSys</a></span></footer>
+        {section === 'machines' && <Machines machines={machines} projects={sourceProjects} connected={connected}/>}
+        {section === 'finance' && <Finance entries={entries} measurements={measurements} projects={sourceProjects}/>}
+        {section === 'imports' && (connected?<div className="panel"><h3>Importador transacional</h3><p>Com a conexão canônica ativa, não são permitidas importações temporárias que criem uma segunda verdade. Use o Importador Universal já existente no Obra na Mão ou o serviço de importação transacional autorizado.</p><button className="btn btn-primary" onClick={()=>navigate('operacao')}>Abrir registros canônicos</button></div>:<Imports imported={imported} onApply={rows=>setImported(old=>[...old,...rows])} onReset={()=>setImported([])}/>)}
+        {section === 'operacao' && (canonical ? <CanonicalWorkspace snapshot={canonical} onRefresh={refreshCanonical} /> : <div className="panel"><h3>Conectar a fonte canônica</h3><p>Esta hospedagem estática não tem acesso ao banco do Obra na Mão. Inicie localmente o gateway autorizado com OBRA_LAN_API_URL e OBRA_LAN_DEVICE_TOKEN, conforme o README, para acessar todas as entidades e editar na fonte.</p><p>Não há banco paralelo no BI e o aplicativo não armazena credenciais no navegador.</p></div>)}
+        <footer className="app-footer"><span>© 2026 · Painel demonstrativo para Opuz Engenharia</span><span>{connected ? 'Fonte de dados: serviço canônico Obra na Mão' : 'Dados fictícios'} • Tecnologia <a href="https://artisys.dev" target="_blank" rel="noreferrer">ArtiSys</a></span></footer>
       </div>
     </main>
   </div>;
